@@ -13,6 +13,7 @@
 line = 'bucket=/opt/splunk/var/lib/splunk/audit/db/db_1343024430_1343019876_77' \
        ' NEEDS REPAIR: count mismatch tsidx=214 source-metadata=199'
               
+# Scan Method
 scan_regex = /\d+/i
 puts scan_regex
 puts scan_regex.source
@@ -27,6 +28,7 @@ puts "scan method with ()'s: #{ line.scan(scan_regex).inspect }"
 puts "scan also be used in a block expression"
 line.scan(scan_regex) { |m| puts m }
 
+# Using Match Method From String Object
 match_regex = /(\d+)/i
 puts "match will match only the first instance of a regex and store it in a " \
      "match object.  Its important to note that a match object is not an " \
@@ -37,7 +39,19 @@ puts "match method: #{ line.match(match_regex).inspect }"
 puts "pre match: #{ line.match(match_regex).pre_match }"
 puts "post match: #{ line.match(match_regex).post_match }"
 
-#Replacing strings using regex
+# Using Match Method From Regex Object
+puts "An alternative is to call the match method on the regex instead of the " \
+     "string like so"
+puts "#{ /(\d+)/.match(line).inspect }"
+
+# Named Capture Groups
+named_groups = line.match(/bucket=(?<bucket>[\w\/]+).*tsidx=(?<tsidx>\d+).*source-metadata=(?<source-metadata>\d+)/)
+puts "Named Capture Groups"
+puts "bucket=#{named_groups['bucket']}"
+puts "tsidx=#{named_groups['tsidx']}"
+puts "source-metadata=#{named_groups['source-metadata']}"
+
+#String Substitution Using Regex
 puts "replacing with a string (use \\1, \\2 ... to refer to captures)"
 puts "123 456 789".gsub(/(\d+)/, '[\1]')
 puts "123 456 789".gsub(/(\d+)/, "[\\1]")
@@ -58,8 +72,8 @@ puts "match method with variable substitution: #{line.match(/#{ regex }/i).inspe
 #so you don't have to escape it
 #normal way with a /
 regex = /bucket=(.*\/db_(\d+)_(\d+)_\d+)/i
-#new way that changes the delimiter to <>
-regex = %r<bucket=(.*/db_(\d+)_(\d+)_\d+)>i
+#new way that changes the delimiter to {}
+regex = %r{bucket=(.*/db_(\d+)_(\d+)_\d+)}i
 
 #The following will create a regex object which has its own methods for matching
 #You will want to go this route if there is a specific regex method you want
