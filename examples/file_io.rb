@@ -24,13 +24,5 @@ def file_open_with_block
   puts "END: #{__method__}"
 end
 
-def manage_cwd
-  puts "cwd: #{Dir.pwd}"
-  Dir.chdir('/opt')
-  puts "new cwd: #{Dir.pwd}" 
-end
-
 file_open_no_block
 #file_open_with_block
-#file_open_with_block
-#manage_cwd
