@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby -w
+
 # References:
 # http://rakeroutes.com/blog/parsing-dates-and-times-from-strings/
 # http://www.ruby-doc.org/stdlib-1.9.3/libdoc/date/rdoc/DateTime.html#method-i-strftime

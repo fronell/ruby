@@ -9,15 +9,22 @@ Ruby has three different time modules:
      
 I've decided to go with the Time module for the following reasons:
   -Since time is just seconds, it makes arithmetic and comparing easy
+  -You can do microseconds with time
   -DateTime has no concept of leap seconds
   -DateTime has no concept of daylight savings
   -In general, the impression I got is most people use Time
-  
-If we are reading in a timestamp stamp though and we do not have to doing any
-calculations from it, then using DateTime.strptime(str, format) is preferable
-beause you can ensure that the time string you're reading will get parsed
-correctly
 
+One disadvantage I found with Time is the parse method is not as accurate as
+DateTime.parse.  With the following timestamp:
+
+Sep  2 00:00:00 2014 GMT
+
+DateTime.parse will parse it correctly but Time.parse creates a Time object with the following values:
+
+[0, 0, 0, 2, 9, 2014, 2, 245, true, "CDT"]
+
+The time is completely incorrect from Time.parse.
+  
 Researching different ways of doing time calculations yielded code such as:
   30.seconds.ago
   2.days.ago
@@ -32,6 +39,7 @@ so many people are using it.
 =end
 
 def time_class
+  puts "BEGIN: #{__method__}"
   # There are two time classes:
   # time in the core library
   # time in the standard library
@@ -42,60 +50,41 @@ def time_class
   # Time.new is synonymous with Time.now
   now = Time.now
 
-  puts "Current time is #{now.strftime('%Y-%m-%d %H:%M:%S %Z')}"
-  puts now.year    # => Year of the date 
-  puts now.month   # => Month of the date (1 to 12)
-  puts now.day     # => Day of the date (1 to 31 )
-  puts now.wday    # => 0: Day of week: 0 is Sunday
-  puts now.yday    # => 365: Day of year
-  puts now.hour    # => 23: 24-hour clock
-  puts now.min     # => 59
-  puts now.sec     # => 59
-  puts now.usec    # => 999999: microseconds
-  puts now.zone    # => "UTC": nowzone name
+  puts "Current time=#{now.strftime('%Y-%m-%d %H:%M:%S %Z')}"
+  puts "year=#{now.year}"
+  puts "month=#{now.month}"
+  puts "day=#{now.day}"
+  puts "wday=#{now.wday}"
+  puts "day of year=#{now.yday}"
+  puts "hour=#{now.hour}"
+  puts "min=#{now.min}"
+  puts "second=#{now.sec}"
+  puts "microsecond=#{now.usec}"
+  puts "timezone=#{now.zone}"
+  puts "utc offset in seconds=#{now.utc_offset}"
 
-  #Following is the example to get all components in an array in the following format:
-  #[sec,min,hour,day,month,year,wday,yday,isdst,zone]
+  # Create a time object for 2013-04-07 15:07:35.600
+  # Arguments that can be passed:
+  # (year, month, day, hour, min, sec, usec_with_frac)
+  # Notice how month can be the short name or number
+  puts "Time.utc=#{Time.utc(2013,"apr",07,15,07,35,600)}"
+  puts "Time.local=#{Time.local(2013,04,07,15,07,35,600)}"
+  # Time.new does not support microseconds
+  # (year, month, day, hour, min, sec, UTC offset)
+  puts "Time.new=#{Time.new(2013,04,07,15,07,35,'-08:00')}"
+  puts "Time.at(epoch time)=#{Time.at(1365365255)}"
+  puts "Time.strptime=#{Time.strptime('2013-04-07 15:07:35.600', '%Y-%m-%d %H:%M:%S.%L')}"
+  puts "Note how strptime will output to local time by default:"
+  puts "Time.strptime for 'Apr  7 15:07:35 2013 GMT'=" \
+       "#{Time.strptime('Apr  7 15:07:35 2013 GMT', '%b  %d %H:%M:%S %Y %Z')}"
 
-  # Create a time object for 2012-04-02 17:05:32
-  # July 8, 2008
-  puts Time.local(2008, 7, 8)  
-  # July 8, 2008, 09:10am, local time
-  puts Time.local(2008, 7, 8, 9, 10)   
-  # July 8, 2008, 09:10 UTC
-  puts Time.utc(2008, 7, 8, 9, 10)  
-  # July 8, 2008, 09:10:11 GMT (same as UTC)
-  puts Time.gm(2008, 7, 8, 9, 10, 11)
-  values = time.to_a
-  p values
-  
-  ######
-  
-  time = Time.new
-  
-  values = time.to_a
-  #This array could be passed to Time.utc or Time.local functions to get different format of dates as follows:
-  puts Time.utc(*values)
-#Convert from epoc time
-converted_time = Time.at(1299923423).strftime('%Y-%m-%d %H:%M:%S')
-puts "converted epoc time: #{ converted_time }"
+  puts "Current Epoch time=#{now.to_i}"
+  puts "Current Epoch time with microseconds=#{now.to_f}"
 
-# Returns number of seconds since epoch
-time = Time.now.to_i  
+  puts "10 days from now=#{now + (60 * 60 * 24 * 10)}"
+  puts "10 days before now=#{now - (60 * 60 * 24 * 10)}"
 
-# Convert number of seconds into Time object.
-Time.at(time)
-
-# Returns second since epoch which includes microseconds
-time = Time.now.to_f
-
-#Time calculations
-now = Time.now     # Current time
-
-past = now - 10    # 10 seconds ago. Time - number => Time
-future = now + 10  # 10 seconds from now Time + number => Time
-future - now       # => 10  Time - Time => number of seconds
-
+  puts "END: #{__method__}"
 end
 
 def datetime_class
@@ -154,3 +143,4 @@ def date_method
   puts d + 10
 end
 
+time_class
